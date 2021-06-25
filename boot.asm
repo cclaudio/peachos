@@ -17,21 +17,6 @@ times 33 db 0
 start:
 	jmp 0x7c0:step2		; Make our code segment 0x7c0
 
-; Interrupt 0: Division by zero
-handle_interrupt_zero:
-	mov ah, 0eh
-	mov al, 'A'
-	mov bx, 0x00
-	int 0x10
-	iret
-
-handle_interrupt_one:
-	mov ah, 0eh
-	mov al, 'V'
-	mov bx, 0x00
-	int 0x10
-	iret
-
 	; Before changing the segment registers we better disable interrupts (cli) to avoid
 	; any race condition. Then enable interrupts again (sti)
 	;
@@ -51,17 +36,22 @@ step2:
 	mov sp, 0x7c00		; Stack grows downwards
 	sti
 
-	; Interrupt vector table starts from RAM 0x00
-	; Each entry has 4 bytes = 2 bytes offset + 2 bytes segment
-	; https://wiki.osdev.org/Exceptions
-	mov word[ss:0x00], handle_interrupt_zero
-	mov word[ss:0x02], ds
-	mov word[ss:0x04], handle_interrupt_one
-	mov word[ss:0x06], ds
+	; Read a message from disk and print it
+	; http://www.ctyme.com/intr/rb-0607.htm
+	mov ah, 2	; Read sector command
+	mov al, 1	; One sector to read
+	mov ch, 0	; Cylinder low eight bits
+	mov cl, 2	; Read sector two
+	mov dh, 0	; Head number
+	mov bx, buffer
+	int 0x13
+	jc error
+	mov si, buffer
+	call print
+	jmp $
 
-	int 1
-
-	mov si, message
+error:
+	mov si, error_message
 	call print
 	jmp $		; Jump to itself
 
@@ -84,7 +74,7 @@ print_char:
 	int 0x10
 	ret
 
-message: db 'Hello World!', 0
+error_message: db 'Failed to load sector', 0
 
 ; The BIOS will look for a bootable segment, which means 0x55AA in the last two
 ; bytes of the first 512 bytes segment. Remember that x86 is little endian,
@@ -92,3 +82,5 @@ message: db 'Hello World!', 0
 ; You can check this running ndisasm boot.bin
 times 510-($ - $$) db 0
 dw 0xAA55
+
+buffer:
