@@ -2,10 +2,30 @@
 ;
 ; Author: Claudio Carvalho <claudiodecarvalho@gmail.com>
 
-ORG 0x7c00		; BIOS loads us into 0x7c00  
+ORG 0
 BITS 16			; 16 bit architecture
 
+jmp 0x7c0:start		; Make our code segment 0x7c0
+
 start:
+	; Before changing the segment registers we better disable interrupts (cli) to avoid
+	; any race condition. Then enable interrupts again (sti)
+	;
+	; x86 ISA doesn't allow us to move imediate value directo to segment registers
+	;
+	; BIOS loads us to 0x7c00
+	; DS:SI
+	; 0x7c0 * 16 = 0x7c00
+	; message = DS + offset
+	cli
+	mov ax, 0x7c0
+	mov ds, ax
+	mov es, ax
+	mov ax, 0x00
+	mov ss, ax
+	mov sp, 0x7c00		; Stack grows downwards
+	sti
+
 	mov si, message
 	call print
 	jmp $		; Jump to itself
