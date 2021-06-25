@@ -5,9 +5,18 @@
 ORG 0
 BITS 16			; 16 bit architecture
 
-jmp 0x7c0:start		; Make our code segment 0x7c0
+_start:
+	jmp short start
+	nop
+
+; Place holder for the bios parameter block. If the bios pass this parameter,
+; it will not corrupt our code
+; https://wiki.osdev.org/FAT
+times 33 db 0
 
 start:
+	jmp 0x7c0:step2		; Make our code segment 0x7c0
+
 	; Before changing the segment registers we better disable interrupts (cli) to avoid
 	; any race condition. Then enable interrupts again (sti)
 	;
@@ -17,6 +26,7 @@ start:
 	; DS:SI
 	; 0x7c0 * 16 = 0x7c00
 	; message = DS + offset
+step2:
 	cli
 	mov ax, 0x7c0
 	mov ds, ax
