@@ -17,6 +17,21 @@ times 33 db 0
 start:
 	jmp 0x7c0:step2		; Make our code segment 0x7c0
 
+; Interrupt 0: Division by zero
+handle_interrupt_zero:
+	mov ah, 0eh
+	mov al, 'A'
+	mov bx, 0x00
+	int 0x10
+	iret
+
+handle_interrupt_one:
+	mov ah, 0eh
+	mov al, 'V'
+	mov bx, 0x00
+	int 0x10
+	iret
+
 	; Before changing the segment registers we better disable interrupts (cli) to avoid
 	; any race condition. Then enable interrupts again (sti)
 	;
@@ -35,6 +50,16 @@ step2:
 	mov ss, ax
 	mov sp, 0x7c00		; Stack grows downwards
 	sti
+
+	; Interrupt vector table starts from RAM 0x00
+	; Each entry has 4 bytes = 2 bytes offset + 2 bytes segment
+	; https://wiki.osdev.org/Exceptions
+	mov word[ss:0x00], handle_interrupt_zero
+	mov word[ss:0x02], ds
+	mov word[ss:0x04], handle_interrupt_one
+	mov word[ss:0x06], ds
+
+	int 1
 
 	mov si, message
 	call print
