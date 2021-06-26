@@ -90,6 +90,14 @@ load32:
 	mov ss, ax
 	mov ebp, 0x00200000
 	mov esp, ebp
+
+	; Enable the A20 line in order to have access to the 21 bit of any
+	; memory access
+	; https://wiki.osdev.org/A20
+	in al, 0x92
+	or al, 2
+	out 0x92, al
+
 	jmp $
 
 ; The BIOS will look for a bootable segment, which means 0x55AA in the last two
