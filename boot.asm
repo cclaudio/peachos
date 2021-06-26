@@ -36,24 +36,7 @@ step2:
 	mov sp, 0x7c00		; Stack grows downwards
 	sti
 
-	; Read a message from disk and print it
-	; http://www.ctyme.com/intr/rb-0607.htm
-	mov ah, 2	; Read sector command
-	mov al, 1	; One sector to read
-	mov ch, 0	; Cylinder low eight bits
-	mov cl, 2	; Read sector two
-	mov dh, 0	; Head number
-	mov bx, buffer
-	int 0x13
-	jc error
-	mov si, buffer
-	call print
 	jmp $
-
-error:
-	mov si, error_message
-	call print
-	jmp $		; Jump to itself
 
 print:
 	mov bx, 0
@@ -82,5 +65,3 @@ error_message: db 'Failed to load sector', 0
 ; You can check this running ndisasm boot.bin
 times 510-($ - $$) db 0
 dw 0xAA55
-
-buffer:
