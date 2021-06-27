@@ -4,7 +4,14 @@
 
 # NOTE: kernel.asm.o has to be the first object of this list, otherwise the
 # _start won't be at the beginning of the binary.
-FILES = ./build/kernel.asm.o
+FILES = ./build/kernel.asm.o ./build/kernel.o
+
+INCLUDES = -I./src
+
+FLAGS = -g -ffreestanding -nostdlib -nostartfiles -nodefaultlibs
+FLAGS += -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce
+FLAGS += -Iinc -O0 -fomit-frame-pointer -finline-functions -fno-builtin
+FLAGS += -Wno-unused-functions -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -Wall
 
 # BIOS only handles binaries hence -f bin
 all: ./bin/boot.bin ./bin/kernel.bin
@@ -15,7 +22,7 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./bin/kernel.bin: $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o ./build/kernelfull.o
-	i686-elf-gcc -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o
+	i686-elf-gcc $(FLAGS) -T ./src/linker.ld -o ./bin/kernel.bin ./build/kernelfull.o
 
 ./bin/boot.bin: ./src/boot/boot.asm
 	nasm -f bin ./src/boot/boot.asm -o ./bin/boot.bin
@@ -23,8 +30,11 @@ all: ./bin/boot.bin ./bin/kernel.bin
 ./build/kernel.asm.o: ./src/kernel.asm
 	nasm -f elf -g ./src/kernel.asm -o ./build/kernel.asm.o
 
+./build/kernel.o: ./src/kernel.c
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/kernel.c -o ./build/kernel.o
+
 debug:
-	gdb -ex "add-symbol-file ./build/kernelfull.o 0x100000" -ex "break _start" -ex "target remote | qemu-system-x86_64 -hda ./bin/os.bin -S -gdb stdio"
+	gdb -ex "add-symbol-file ./build/kernelfull.o 0x100000" -ex "target remote | qemu-system-x86_64 -hda ./bin/os.bin -S -gdb stdio"
 
 build_x_compiler:
 	echo "The host binutils and gcc were built to Linux, we need to build our own."
