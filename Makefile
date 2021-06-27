@@ -2,6 +2,8 @@
 #
 # Author: Claudio Carvalho <claudiodecarvalho@gmail.com>
 
+# NOTE: kernel.asm.o has to be the first object of this list, otherwise the
+# _start won't be at the beginning of the binary.
 FILES = ./build/kernel.asm.o
 
 # BIOS only handles binaries hence -f bin

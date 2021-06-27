@@ -29,3 +29,5 @@ _start:
 	out 0x92, al
 
 	jmp $
+
+times 512-($ - $$) db 0
