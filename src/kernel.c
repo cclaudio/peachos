@@ -7,6 +7,7 @@
 #include <stddef.h>
 
 #include "kernel.h"
+#include "idt/idt.h"
 
 /*
  * Each character in the screen is uint16_t = 2 bytes
@@ -78,4 +79,7 @@ void kernel_main(void)
 {
 	terminal_initialize();
 	print("Hello world!\ntest");
+
+	// Initialize the interrupt descriptor table
+	idt_init();
 }
