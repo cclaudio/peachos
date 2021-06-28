@@ -8,6 +8,7 @@
 
 #include "kernel.h"
 #include "idt/idt.h"
+#include "io/io.h"
 
 /*
  * Each character in the screen is uint16_t = 2 bytes

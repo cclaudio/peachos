@@ -4,7 +4,13 @@
 
 section .asm
 
+extern int21h_handler
+extern no_interrupt_handler
+
 global idt_load
+global int21h
+global no_interrupt
+
 idt_load:
     push ebp
     mov ebp, esp
@@ -12,3 +18,20 @@ idt_load:
     lidt [ebx]
     pop ebp
     ret
+
+int21h:
+    cli
+    pushad      ; push all the GPRs
+    call int21h_handler
+    popad
+    sti
+    iret
+
+; We get here in case no interrupt set
+no_interrupt:
+    cli
+    pushad      ; push all the GPRs
+    call no_interrupt_handler
+    popad
+    sti
+    iret
