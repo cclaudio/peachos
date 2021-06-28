@@ -41,10 +41,6 @@ _start:
 	out 0x21, al
 	; End remap of master PIC
 
-	; Enable interrupts
-	; FIXME: Enable it only after the IDT is initialized
-	sti
-
 	call kernel_main
 	jmp $
 
