@@ -9,6 +9,7 @@
 #include "kernel.h"
 #include "idt/idt.h"
 #include "io/io.h"
+#include "memory/heap/kheap.h"
 
 /*
  * Each character in the screen is uint16_t = 2 bytes
@@ -80,6 +81,9 @@ void kernel_main(void)
 {
 	terminal_initialize();
 	print("Hello world!\ntest");
+
+	// Initialize the heap
+	kheap_init();
 
 	// Initialize the interrupt descriptor table
 	idt_init();
