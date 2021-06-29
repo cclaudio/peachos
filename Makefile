@@ -6,6 +6,7 @@
 # _start won't be at the beginning of the binary.
 FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o
 FILES += ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o
+FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o
 
 INCLUDES = -I./src
 
@@ -52,6 +53,12 @@ all: ./bin/boot.bin ./bin/kernel.bin
 ./build/memory/heap/kheap.o : ./src/memory/heap/kheap.c
 	i686-elf-gcc $(INCLUDES) -I./src/memory/heap $(FLAGS) -std=gnu99 -c ./src/memory/heap/kheap.c -o ./build/memory/heap/kheap.o
 
+./build/memory/paging/paging.o : ./src/memory/paging/paging.c
+	i686-elf-gcc $(INCLUDES) -I./src/memory/paging $(FLAGS) -std=gnu99 -c ./src/memory/paging/paging.c -o ./build/memory/paging/paging.o
+
+./build/memory/paging/paging.asm.o : ./src/memory/paging/paging.asm
+	nasm -f elf -g ./src/memory/paging/paging.asm -o ./build/memory/paging/paging.asm.o
+
 debug:
 	gdb -ex "add-symbol-file ./build/kernelfull.o 0x100000" -ex "target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio"
 
@@ -61,3 +68,4 @@ build_x_compiler:
 
 clean:
 	rm -rf ./bin/*
+	rm -f $(FILES)
