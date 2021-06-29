@@ -6,7 +6,7 @@
 # _start won't be at the beginning of the binary.
 FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o
 FILES += ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o
-FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o
+FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o
 
 INCLUDES = -I./src
 
@@ -58,6 +58,9 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/memory/paging/paging.asm.o : ./src/memory/paging/paging.asm
 	nasm -f elf -g ./src/memory/paging/paging.asm -o ./build/memory/paging/paging.asm.o
+
+./build/disk/disk.o : ./src/disk/disk.c
+		i686-elf-gcc $(INCLUDES) -I./src/disk $(FLAGS) -std=gnu99 -c ./src/disk/disk.c -o ./build/disk/disk.o
 
 debug:
 	gdb -ex "add-symbol-file ./build/kernelfull.o 0x100000" -ex "target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio"
