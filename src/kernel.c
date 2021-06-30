@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stddef.h>
 
+#include "string/string.h"
 #include "kernel.h"
 #include "idt/idt.h"
 #include "io/io.h"
@@ -63,14 +64,6 @@ void terminal_initialize(void)
 	for (int y = 0; y < VGA_HEIGHT; y++)
 		for (int x = 0; x < VGA_WIDTH; x++)
 			terminal_putchar(x, y, ' ', 0);
-}
-
-size_t strlen(const char *str)
-{
-	size_t len = 0;
-	while (str[len])
-		len++;
-	return len;
 }
 
 void print(const char *str)
