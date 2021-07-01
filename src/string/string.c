@@ -28,6 +28,20 @@ size_t strnlen(const char *str, size_t max)
 	return len;
 }
 
+char *strcpy(char *dest, const char *src)
+{
+	char *tmp = dest;
+
+	while (*src != 0) {
+		*dest = *src;
+		src++;
+		dest++;
+	}
+	*dest = 0x00;
+
+	return tmp;
+}
+
 int to_numeric_digit(char c)
 {
     return c - 48;

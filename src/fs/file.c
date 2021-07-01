@@ -10,6 +10,7 @@
 #include "status.h"
 #include "memory/heap/kheap.h"
 #include "kernel.h"
+#include "fs/fat/fat16.h"
 
 struct filesystem *filesystems[PEACHOS_MAX_FILESYSTEMS];
 struct file_descriptor *file_descriptors[PEACHOS_MAX_FILE_DESCRIPTORS];
@@ -40,7 +41,7 @@ void fs_insert_filesystem(struct filesystem *filesystem)
 
 static void fs_static_load(void)
 {
-    //fs_insert_filesystem(fat16_init());
+    fs_insert_filesystem(fat16_init());
 }
 
 void fs_load(void)
@@ -55,6 +56,7 @@ void fs_init(void)
     fs_load();
 }
 
+#ifdef false
 static int file_new_descriptor(struct file_descriptor **desc_out)
 {
     for (int i = 0; i < PEACHOS_MAX_FILE_DESCRIPTORS; i++) {
@@ -79,6 +81,7 @@ static struct file_descriptor *file_get_descriptor(int fd)
     // Descriptors start at 1
     return file_descriptors[fd - 1];
 }
+#endif
 
 struct filesystem *fs_resolve(struct disk *disk)
 {

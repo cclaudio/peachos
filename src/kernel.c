@@ -14,6 +14,7 @@
 #include "memory/paging/paging.h"
 #include "disk/disk.h"
 #include "disk/streamer.h"
+#include "fs/file.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -83,6 +84,9 @@ void kernel_main(void)
 	// Initialize the heap
 	kheap_init();
 
+	// Initialize the filesystems
+	fs_init();
+
 	// Search and initialize the disks
 	disk_search_and_init();
 
@@ -101,9 +105,7 @@ void kernel_main(void)
 	// Enable the system interrupts
 	enable_interrupts();
 
-	struct disk_stream *stream = dstreamer_new(0);
-	dstreamer_seek(stream, 0x201);
-	unsigned short two = 0;
-	dstreamer_read(stream, &two, 2);
+	char buf[20];
+	strcpy(buf, "hello");
 	while (1) {}
 }
