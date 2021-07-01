@@ -8,14 +8,32 @@ BITS 16			; 16 bit architecture
 CODE_SEG equ gdt_code - gdt_start
 DATA_SEG equ gdt_data - gdt_start
 
-_start:
-	jmp short start
-	nop
+jmp short start
+nop
 
-; Place holder for the bios parameter block. If the bios pass this parameter,
-; it will not corrupt our code
-; https://wiki.osdev.org/FAT
-times 33 db 0
+; FAT16 header
+; https://en.wikipedia.org/wiki/Design_of_the_FAT_file_system
+OEMIdentifier			db 'PEACHOS '
+BytesPerSector			dw 0x200 		; 512 bytes
+SectorsPerCluster		db 0x80
+ReservedSectors			dw 200			; We will load the kernel from here
+FATCopies				db 0x02			; Original and backup
+RootDirEntries			dw 0x40
+NumSectors				dw 0x00
+MediaType				db 0xF8
+SectorsPerFat			dw 0x100
+SectorsPerTrack			dw 0x20
+NumberOfHeads			dw 0x40
+HiddenSectors			dd 0x00
+SectorsBig				dd 0x773594
+
+; Extended BPB (Dos 4.0)
+DriveNumber				db 0x80
+WinNTBit				db 0x00
+Signature				db 0x29
+VolumeID				dd 0xD105
+VolumeIDString			db 'PEACHOS BOO'
+SystemIDSring			db 'FAT16   '
 
 start:
 	jmp 0x0:step2
