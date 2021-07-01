@@ -7,7 +7,7 @@
 FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o
 FILES += ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o
 FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o
-FILES += ./build/string/string.o ./build/fs/pparser.o
+FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o
 
 INCLUDES = -I./src
 
@@ -68,6 +68,9 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/fs/pparser.o : ./src/fs/pparser.c
 		i686-elf-gcc $(INCLUDES) -I./src/fs $(FLAGS) -std=gnu99 -c ./src/fs/pparser.c -o ./build/fs/pparser.o
+
+./build/disk/streamer.o : ./src/disk/streamer.c
+		i686-elf-gcc $(INCLUDES) -I./src/disk $(FLAGS) -std=gnu99 -c ./src/disk/streamer.c -o ./build/disk/streamer.o
 
 debug:
 	gdb -ex "add-symbol-file ./build/kernelfull.o 0x100000" -ex "target remote | qemu-system-i386 -hda ./bin/os.bin -S -gdb stdio"

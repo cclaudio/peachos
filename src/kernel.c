@@ -13,6 +13,7 @@
 #include "memory/heap/kheap.h"
 #include "memory/paging/paging.h"
 #include "disk/disk.h"
+#include "disk/streamer.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -99,4 +100,10 @@ void kernel_main(void)
 
 	// Enable the system interrupts
 	enable_interrupts();
+
+	struct disk_stream *stream = dstreamer_new(0);
+	dstreamer_seek(stream, 0x201);
+	unsigned short two = 0;
+	dstreamer_read(stream, &two, 2);
+	while (1) {}
 }
