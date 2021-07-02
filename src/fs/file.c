@@ -11,6 +11,9 @@
 #include "memory/heap/kheap.h"
 #include "kernel.h"
 #include "fs/fat/fat16.h"
+#include "disk/disk.h"
+#include "string/string.h"
+#include "kernel.h"
 
 struct filesystem *filesystems[PEACHOS_MAX_FILESYSTEMS];
 struct file_descriptor *file_descriptors[PEACHOS_MAX_FILE_DESCRIPTORS];
@@ -56,7 +59,6 @@ void fs_init(void)
     fs_load();
 }
 
-#ifdef false
 static int file_new_descriptor(struct file_descriptor **desc_out)
 {
     for (int i = 0; i < PEACHOS_MAX_FILE_DESCRIPTORS; i++) {
@@ -73,6 +75,7 @@ static int file_new_descriptor(struct file_descriptor **desc_out)
     return -ENOMEM;
 }
 
+#if 0
 static struct file_descriptor *file_get_descriptor(int fd)
 {
     if (fd <= 0 || fd >= PEACHOS_MAX_FILE_DESCRIPTORS)
@@ -96,7 +99,79 @@ struct filesystem *fs_resolve(struct disk *disk)
     return NULL;
 }
 
-int fopen(const char *filename, char *mode)
+FILE_MODE file_get_mode_by_string(const char *str)
 {
-    return -EIO;
+    FILE_MODE mode = FILE_MODE_INVALID;
+
+    if (strncmp(str, "r", 1) == 0)
+        mode = FILE_MODE_READ;
+    else if (strncmp(str, "w", 1) == 0)
+        mode = FILE_MODE_WRITE;
+    else if (strncmp(str, "a", 1) == 0)
+        mode = FILE_MODE_APPEND;
+
+    return mode;
+}
+
+int fopen(const char *filename, const char *mode_str)
+{
+    struct path_root *root_path;
+    struct disk *disk;
+    void *descriptor_private_data;
+    struct file_descriptor *desc;
+    int res = 0;
+
+    root_path = pparser_parse(filename, NULL);
+    if (!root_path) {
+        res = -EINVARG;
+        goto out;
+    }
+
+    // We cannot have just a root path 0:/ 0:/test.txt
+    if (!root_path->first) {
+        res = -EINVARG;
+        goto out;
+    }
+
+    // Ensure the disk we are reading from exists
+    disk = disk_get(root_path->drive_number);
+    if (!disk) {
+        res = -EIO;
+        goto out;
+    }
+
+    if (!disk->filesystem) {
+        res = -EIO;
+        goto out;
+    }
+
+    FILE_MODE mode = file_get_mode_by_string(mode_str);
+    if (mode == FILE_MODE_INVALID) {
+        res = -EINVARG;
+        goto out;
+    }
+
+    descriptor_private_data = disk->filesystem->open(disk, root_path->first, mode);
+    if (ISERR(descriptor_private_data)) {
+        res = ERROR_I(descriptor_private_data);
+        goto out;
+    }
+
+    desc = NULL;
+    res = file_new_descriptor(&desc);
+    if (res < 0)
+        goto out;
+
+    desc->filesystem = disk->filesystem;
+    desc->private = descriptor_private_data;
+    desc->disk = disk;
+
+    res = desc->index;
+
+out:
+    // fopen should not return negative values
+    if (res < 0)
+        res = 0;
+
+    return res;
 }

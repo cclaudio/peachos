@@ -53,7 +53,7 @@ void disk_search_and_init(void)
     primary_disk.type = PEACHOS_DISK_TYPE_REAL;
     primary_disk.id = 0;
     primary_disk.sector_size = PEACHOS_SECTOR_SIZE;
-    primary_disk.filesytem = fs_resolve(&primary_disk);
+    primary_disk.filesystem = fs_resolve(&primary_disk);
 }
 
 struct disk *disk_get(int index)

@@ -240,7 +240,7 @@ int fat16_resolve(struct disk *disk)
 
     fat16_init_private(disk, fat_private);
     disk->fs_private = fat_private;
-    disk->filesytem = &fat16_fs;
+    disk->filesystem = &fat16_fs;
 
     if (dstreamer_read(stream, &fat_private->header, sizeof(fat_private->header)) != PEACHOS_ALL_OK) {
         res = -EIO;

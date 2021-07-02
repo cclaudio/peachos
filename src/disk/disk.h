@@ -21,7 +21,7 @@ struct disk {
     // The id of the disk
     int id;
 
-    struct filesystem *filesytem;
+    struct filesystem *filesystem;
 
     // The private data of out filesystem
     void *fs_private;
