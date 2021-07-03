@@ -75,7 +75,6 @@ static int file_new_descriptor(struct file_descriptor **desc_out)
     return -ENOMEM;
 }
 
-#if 0
 static struct file_descriptor *file_get_descriptor(int fd)
 {
     if (fd <= 0 || fd >= PEACHOS_MAX_FILE_DESCRIPTORS)
@@ -84,7 +83,6 @@ static struct file_descriptor *file_get_descriptor(int fd)
     // Descriptors start at 1
     return file_descriptors[fd - 1];
 }
-#endif
 
 struct filesystem *fs_resolve(struct disk *disk)
 {
@@ -174,4 +172,18 @@ out:
         res = 0;
 
     return res;
+}
+
+int fread(void *ptr, uint32_t size, uint32_t nmemb, int fd)
+{
+    struct file_descriptor *desc;
+
+    if (size == 0 || nmemb == 0 || fd < 1)
+        return -EINVARG;
+
+    desc = file_get_descriptor(fd);
+    if (!desc)
+        return -EINVARG;
+
+    return desc->filesystem->read(desc->disk, desc->private, size, nmemb, (char *) ptr);
 }
