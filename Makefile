@@ -8,7 +8,7 @@ FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/
 FILES += ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/kheap.o
 FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o
 FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o ./build/fs/file.o
-FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o
+FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/task/tss.asm.o
 
 INCLUDES = -I./src
 
@@ -58,6 +58,9 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/io/io.asm.o : ./src/io/io.asm
 	nasm -f elf -g ./src/io/io.asm -o ./build/io/io.asm.o
+
+./build/task/tss.asm.o : ./src/task/tss.asm
+	nasm -f elf -g ./src/task/tss.asm -o ./build/task/tss.asm.o
 
 ./build/memory/heap/heap.o : ./src/memory/heap/heap.c
 	i686-elf-gcc $(INCLUDES) -I./src/memory/heap $(FLAGS) -std=gnu99 -c ./src/memory/heap/heap.c -o ./build/memory/heap/heap.o
