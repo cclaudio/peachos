@@ -15,6 +15,9 @@
 #include "disk/disk.h"
 #include "disk/streamer.h"
 #include "fs/file.h"
+#include "gdt/gdt.h"
+#include "config.h"
+#include "memory/memory.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -82,10 +85,23 @@ void panic(const char *msg)
 	while (1) {}
 }
 
+struct gdt gdt_real[PEACHOS_TOTAL_GDT_SEGMENTS];
+struct gdt_structured gdt_structured[PEACHOS_TOTAL_GDT_SEGMENTS] = {
+	{.base = 0x00, .limit = 0x00, .type = 0x00}, 				// NULL Segment
+	{.base = 0x00, .limit = 0xFFFFFFFF, .type = 0x9a}, 			// Kernel code segment
+	{.base = 0x00, .limit = 0xFFFFFFFF, .type = 0x92}			// Kernel data segment
+};
+
 void kernel_main(void)
 {
 	terminal_initialize();
 	print("Hello world!\ntest");
+
+	memset(gdt_real, 0x00, sizeof(gdt_real));
+	gdt_structured_to_gdt(gdt_real, gdt_structured, PEACHOS_TOTAL_GDT_SEGMENTS);
+
+	// Load the GDT
+	gdt_load(gdt_real, sizeof(gdt_real));
 
 	// Initialize the heap
 	kheap_init();
