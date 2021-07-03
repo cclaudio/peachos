@@ -184,6 +184,16 @@ int fstat(int fd, struct file_stat *stat)
     return desc->filesystem->stat(desc->disk, desc->private, stat);
 }
 
+int fclose(int fd)
+{
+    struct file_descriptor *desc = file_get_descriptor(fd);
+
+    if (!desc)
+        return -EIO;
+
+    return desc->filesystem->close(desc->private);
+}
+
 int fseek(int fd, int offset, FILE_SEEK_MODE whence)
 {
     struct file_descriptor *desc = file_get_descriptor(fd);
