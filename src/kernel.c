@@ -76,6 +76,12 @@ void print(const char *str)
 		terminal_writechar(str[i], 15);
 }
 
+void panic(const char *msg)
+{
+	print(msg);
+	while (1) {}
+}
+
 void kernel_main(void)
 {
 	terminal_initialize();

@@ -18,5 +18,6 @@
 
 void kernel_main(void);
 void print(const char *str);
+void panic(const char *msg);
 
 #endif
