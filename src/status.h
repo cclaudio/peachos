@@ -14,5 +14,6 @@
 #define EBADPATH 4
 #define EFSNOTUS 5
 #define ERDONLY 6
+#define EUNIMP 7
 
 #endif // STATUS_H
