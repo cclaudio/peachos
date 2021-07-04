@@ -19,7 +19,7 @@ FLAGS += -Iinc -O0 -fomit-frame-pointer -finline-functions -fno-builtin
 FLAGS += -Wno-unused-functions -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -Wall
 
 # BIOS only handles binaries hence -f bin
-all: ./bin/boot.bin ./bin/kernel.bin
+all: ./bin/boot.bin ./bin/kernel.bin programs
 	rm -f ./bin/os.bin
 	dd if=./bin/boot.bin >> ./bin/os.bin
 	dd if=./bin/kernel.bin >> ./bin/os.bin
@@ -109,6 +109,14 @@ build_x_compiler:
 	echo "The host binutils and gcc were built to Linux, we need to build our own."
 	echo "See https://wiki.osdev.org/GCC_Cross-Compiler"
 
-clean:
+.PHONY: programs
+
+programs:
+	cd ./programs/blank && $(MAKE) all
+
+programs_clean:
+	cd ./programs/blank && $(MAKE) clean
+
+clean: programs_clean
 	rm -rf ./bin/*
 	rm -f $(FILES)
