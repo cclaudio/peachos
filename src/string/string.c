@@ -98,6 +98,20 @@ char *strcpy(char *dest, const char *src)
 	return tmp;
 }
 
+char *strncpy(char *dest, const char *src, size_t count)
+{
+	int i;
+
+	for (i = 0; i < count-1; i++) {
+		if (src[i] == '\0')
+			break;
+		dest[i] = src[i];
+	}
+	dest[i] = '\0';
+
+	return dest;
+}
+
 int to_numeric_digit(char c)
 {
     return c - 48;

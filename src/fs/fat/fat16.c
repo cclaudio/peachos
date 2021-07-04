@@ -14,6 +14,7 @@
 #include "memory/memory.h"
 #include "memory/heap/kheap.h"
 #include "kernel.h"
+#include "config.h"
 
 #define PEACHOS_FAT16_SIGNATURE  0x29
 #define PEACHOS_FAT16_FAT_ENTRY_SIZE 0x02

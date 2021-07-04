@@ -5,11 +5,11 @@
  */
 
 #include "pparser.h"
-#include "kernel.h"
 #include "string/string.h"
 #include "memory/heap/kheap.h"
 #include "memory/memory.h"
 #include "status.h"
+#include "config.h"
 
 static int pparser_path_valid_format(const char *filename)
 {

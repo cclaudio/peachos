@@ -7,6 +7,7 @@
 #include "task.h"
 #include "kernel.h"
 #include "status.h"
+#include "process.h"
 #include "memory/memory.h"
 #include "memory/heap/kheap.h"
 
@@ -54,7 +55,7 @@ int task_free(struct task *task)
     return 0;
 }
 
-int task_init(struct task *task)
+int task_init(struct task *task, struct process *process)
 {
     memset(task, 0, sizeof(struct task));
 
@@ -68,10 +69,12 @@ int task_init(struct task *task)
     task->registers.ss = USER_DATA_SEGMENT;
     task->registers.esp = PEACHOS_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
 
+    task->process = process;
+
     return 0;
 }
 
-struct task *task_new(void)
+struct task *task_new(struct process *process)
 {
     struct task *task;
     int res = 0;
@@ -82,7 +85,7 @@ struct task *task_new(void)
         goto err_free_mem;
     }
 
-    res = task_init(task);
+    res = task_init(task, process);
     if (res != PEACHOS_ALL_OK)
         goto err_free_mem;
 
