@@ -106,3 +106,28 @@ err_free_mem:
     task_free(task);
     return ERROR(res);
 }
+
+int task_switch(struct task *task)
+{
+    current_task = task;
+    paging_switch(task->page_directory->directory_entry);
+    return 0;
+}
+
+// Task page directories
+int task_page(void)
+{
+    user_registers();
+    task_switch(current_task);
+    return 0;
+}
+
+void task_run_first_ever_task(void)
+{
+    // Not allowed if task is not loaded
+    if (!current_task)
+        panic("task_run_first_ever_task(): No current task exists!\n");
+
+    task_switch(task_head);
+    task_return(&task_head->registers);
+}
