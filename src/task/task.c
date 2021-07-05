@@ -67,6 +67,7 @@ int task_init(struct task *task, struct process *process)
 
     task->registers.ip = PEACHOS_PROGRAM_VIRTUAL_ADDRESS;
     task->registers.ss = USER_DATA_SEGMENT;
+    task->registers.cs = USER_CODE_SEGMENT;
     task->registers.esp = PEACHOS_PROGRAM_VIRTUAL_STACK_ADDRESS_START;
 
     task->process = process;
@@ -80,10 +81,8 @@ struct task *task_new(struct process *process)
     int res = 0;
 
     task = kzalloc(sizeof(struct task));
-    if (!task) {
-        res = -ENOMEM;
-        goto err_free_mem;
-    }
+    if (!task)
+        return NULL;
 
     res = task_init(task, process);
     if (res != PEACHOS_ALL_OK)
@@ -93,6 +92,7 @@ struct task *task_new(struct process *process)
         // First task
         task_head = task;
         task_tail = task;
+        current_task = task;
     } else {
         // Append task
         task_tail->next = task;
@@ -104,7 +104,7 @@ struct task *task_new(struct process *process)
 
 err_free_mem:
     task_free(task);
-    return ERROR(res);
+    return NULL;
 }
 
 int task_switch(struct task *task)

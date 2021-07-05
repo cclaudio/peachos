@@ -21,7 +21,7 @@ struct gdt {
 struct gdt_structured {
     uint32_t base;
     uint32_t limit;
-    uint32_t type;
+    uint8_t type;
 };
 
 void gdt_load(struct gdt *gdt, int size);

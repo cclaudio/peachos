@@ -34,7 +34,9 @@ int dstreamer_seek(struct disk_stream *stream, int pos)
 
 int dstreamer_read(struct disk_stream *stream, void *out, int total)
 {
-    while (total > 0) {
+    int res = 0;
+
+    do {
         int sector = stream->pos / PEACHOS_SECTOR_SIZE;
         int offset = stream->pos % PEACHOS_SECTOR_SIZE;
         char buf[PEACHOS_SECTOR_SIZE];
@@ -53,9 +55,9 @@ int dstreamer_read(struct disk_stream *stream, void *out, int total)
         // Adjust the stream
         stream->pos += bytes_to_read;
         total -= bytes_to_read;
-    }
+    } while (total > PEACHOS_SECTOR_SIZE);
     
-    return 0;
+    return res;
 }
 
 void dstreamer_close(struct disk_stream *stream)

@@ -19,6 +19,9 @@
 #include "config.h"
 #include "memory/memory.h"
 #include "task/tss.h"
+#include "task/task.h"
+#include "task/process.h"
+#include "status.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -94,7 +97,7 @@ struct gdt_structured gdt_structured[PEACHOS_TOTAL_GDT_SEGMENTS] = {
 	{.base = 0x00, .limit = 0xffffffff, .type = 0x92},				// Kernel data segment
 	{.base = 0x00, .limit = 0xffffffff, .type = 0xf8},				// User code segment
 	{.base = 0x00, .limit = 0xffffffff, .type = 0xf2},				// User data segment
-	{.base = (uint32_t ) &tss, .limit = sizeof(tss), .type = 0xe9}	// TSS Segment
+	{.base = (uint32_t) &tss, .limit = sizeof(tss), .type = 0xE9}	// TSS Segment
 };
 
 void kernel_main(void)
@@ -137,16 +140,12 @@ void kernel_main(void)
 	// Enable paging
 	enable_paging();
 
-	// Enable the system interrupts
-	enable_interrupts();
+	struct process *process = NULL;
+	int res = process_load("0:/blank.bin", &process);
+	if (res != PEACHOS_ALL_OK)
+		panic("Failed to load blank.bin\n");
 
-	int fd = fopen("0:/hello.txt", "r");
-	if (fd) {
-		struct file_stat s;
-		fstat(fd, &s);
-		fclose(fd);
-		print("testing\n");
-	}
+	task_run_first_ever_task();
 
 	while (1) {}
 }

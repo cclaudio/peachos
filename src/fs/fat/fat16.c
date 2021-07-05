@@ -236,12 +236,6 @@ int fat16_resolve(struct disk *disk)
     struct disk_stream *stream;
     int res = 0;
 
-    stream = dstreamer_new(disk->id);
-    if (!stream) {
-        res = -ENOMEM;
-        goto out;
-    }
-
     fat_private = kzalloc(sizeof(struct fat_private));
     if (!fat_private) {
         res = -ENOMEM;
@@ -251,6 +245,12 @@ int fat16_resolve(struct disk *disk)
     fat16_init_private(disk, fat_private);
     disk->fs_private = fat_private;
     disk->filesystem = &fat16_fs;
+
+    stream = dstreamer_new(disk->id);
+    if (!stream) {
+        res = -ENOMEM;
+        goto out;
+    }
 
     if (dstreamer_read(stream, &fat_private->header, sizeof(fat_private->header)) != PEACHOS_ALL_OK) {
         res = -EIO;

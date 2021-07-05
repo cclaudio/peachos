@@ -19,12 +19,12 @@ void encode_gdt_entry(uint8_t *target, struct gdt_structured source)
         target[6] = 0xC0;
     }
 
-    // Encodes de limit;
+    // Encodes the limit;
     target[0] = source.limit & 0xFF;
     target[1] = (source.limit >> 8) & 0xFF;
-    target[6] |= (source.limit >> 16) & 0xF;
+    target[6] |= (source.limit >> 16) & 0x0F;
 
-    // Encode he base
+    // Encode the base
     target[2] = source.base & 0xFF;
     target[3] = (source.base >> 8) & 0xFF;
     target[4] = (source.base >> 16) & 0xFF;
