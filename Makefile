@@ -10,7 +10,7 @@ FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./bui
 FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o ./build/fs/file.o
 FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/task/tss.asm.o
 FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/misc.o
-FILES += ./build/isr80h/isr80h.o
+FILES += ./build/isr80h/isr80h.o ./build/isr80h/io.o
 
 INCLUDES = -I./src
 
@@ -59,6 +59,8 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 ./build/isr80h/misc.o : ./src/isr80h/misc.c
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/misc.c -o ./build/isr80h/misc.o
 
+./build/isr80h/io.o : ./src/isr80h/io.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/io.c -o ./build/isr80h/io.o
 
 ./build/idt/idt.o : ./src/idt/idt.c
 	i686-elf-gcc $(INCLUDES) -I./src/idt $(FLAGS) -std=gnu99 -c ./src/idt/idt.c -o ./build/idt/idt.o
