@@ -10,7 +10,9 @@
 #include "process.h"
 #include "memory/memory.h"
 #include "memory/heap/kheap.h"
+#include "memory/paging/paging.h"
 #include "idt/idt.h"
+#include "string/string.h"
 
 // The current task that is running
 struct task *current_task = NULL;
@@ -113,6 +115,40 @@ int task_switch(struct task *task)
     current_task = task;
     paging_switch(task->page_directory);
     return 0;
+}
+
+int copy_string_from_task(struct task *task, void *virtual, void *phys, int max)
+{
+    uint32_t *task_directory;
+    uint32_t old_entry;
+    char *tmp;
+    int res = 0;
+
+    if (max == PAGING_PAGE_SIZE)
+        return -EINVARG;
+
+    tmp = kzalloc(max);
+    if (!tmp)
+        return -ENOMEM;
+    
+    task_directory = task->page_directory->directory_entry;
+    old_entry = paging_get(task_directory, tmp);
+    paging_map(task->page_directory, tmp, tmp, PAGING_IS_WRITEABLE | PAGING_IS_PRESENT | PAGING_ACCESS_FROM_ALL);
+    paging_switch(task->page_directory);
+    strncpy(tmp, virtual, max);
+    kernel_page();
+
+    res = paging_set(task_directory, tmp, old_entry);
+    if (res < 0) {
+        res = -EIO;
+        goto out_free;
+    }
+
+    strncpy(phys, tmp, max);
+
+out_free:
+    kfree(tmp);
+    return res;
 }
 
 void task_save_state(struct task *task, struct interrupt_frame *frame)

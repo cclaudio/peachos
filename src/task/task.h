@@ -61,5 +61,6 @@ void restore_general_purpose_registers(struct registers *regs);
 void user_registers(void);
 
 void task_current_save_state(struct interrupt_frame *frame);
+int copy_string_from_task(struct task *task, void *virtual, void *phys, int max);
 
 #endif // TASK_H
