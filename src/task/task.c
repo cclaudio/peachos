@@ -185,6 +185,13 @@ int task_page(void)
     return 0;
 }
 
+int task_page_task(struct task *task)
+{
+    user_registers();
+    paging_switch(task->page_directory);
+    return 0;
+}
+
 void task_run_first_ever_task(void)
 {
     // Not allowed if task is not loaded
@@ -193,4 +200,21 @@ void task_run_first_ever_task(void)
 
     task_switch(task_head);
     task_return(&task_head->registers);
+}
+
+void *task_get_stack_item(struct task *task, int index)
+{
+    void *result = 0;
+    uint32_t *sp_ptr = (uint32_t *) task->registers.esp;
+
+    // Switch to the given task page
+    task_page_task(task);
+
+    result = (void *) sp_ptr[index];
+
+    // Switch back to the kernel page
+    kernel_page();
+
+    return result;
+
 }
