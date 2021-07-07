@@ -9,7 +9,8 @@ FILES += ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/heap/khea
 FILES += ./build/memory/paging/paging.o ./build/memory/paging/paging.asm.o ./build/disk/disk.o
 FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o ./build/fs/file.o
 FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/task/tss.asm.o
-FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o
+FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/misc.o
+FILES += ./build/isr80h/isr80h.o
 
 INCLUDES = -I./src
 
@@ -32,7 +33,7 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 
 ./bin/kernel.bin: $(FILES)
 	i686-elf-ld -g -relocatable $(FILES) -o ./build/kernelfull.o
-	i686-elf-gcc $(FLAGS) -T ./src/linker.ld -o ./bin/kernel.bin ./build/kernelfull.o
+	i686-elf-gcc $(FLAGS) -T ./src/linker.ld -o ./bin/kernel.bin -ffreestanding -O0 -nostdlib ./build/kernelfull.o
 
 ./bin/boot.bin: ./src/boot/boot.asm
 	nasm -f bin ./src/boot/boot.asm -o ./bin/boot.bin
@@ -47,10 +48,17 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 	nasm -f elf -g ./src/idt/idt.asm -o ./build/idt/idt.asm.o
 
 ./build/gdt/gdt.o : ./src/gdt/gdt.c
-	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/gdt/gdt.c -o ./build/gdt/gdt.o
+	i686-elf-gcc $(INCLUDES) -I./src/gdt $(FLAGS) -std=gnu99 -c ./src/gdt/gdt.c -o ./build/gdt/gdt.o
 
 ./build/gdt/gdt.asm.o : ./src/gdt/gdt.asm
 	nasm -f elf -g ./src/gdt/gdt.asm -o ./build/gdt/gdt.asm.o
+
+./build/isr80h/isr80h.o : ./src/isr80h/isr80h.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/isr80h.c -o ./build/isr80h/isr80h.o
+
+./build/isr80h/misc.o : ./src/isr80h/misc.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/misc.c -o ./build/isr80h/misc.o
+
 
 ./build/idt/idt.o : ./src/idt/idt.c
 	i686-elf-gcc $(INCLUDES) -I./src/idt $(FLAGS) -std=gnu99 -c ./src/idt/idt.c -o ./build/idt/idt.o
@@ -121,3 +129,4 @@ programs_clean:
 clean: programs_clean
 	rm -rf ./bin/*
 	rm -f $(FILES)
+	rm -f ./build/kernelfull.o

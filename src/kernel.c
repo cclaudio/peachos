@@ -22,6 +22,7 @@
 #include "task/task.h"
 #include "task/process.h"
 #include "status.h"
+#include "isr80h/isr80h.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -89,6 +90,12 @@ void panic(const char *msg)
 	while (1) {}
 }
 
+void kernel_page(void)
+{
+	kernel_registers();
+	paging_switch(kernel_chunk);
+}
+
 struct tss tss;
 struct gdt gdt_real[PEACHOS_TOTAL_GDT_SEGMENTS];
 struct gdt_structured gdt_structured[PEACHOS_TOTAL_GDT_SEGMENTS] = {
@@ -139,6 +146,9 @@ void kernel_main(void)
 
 	// Enable paging
 	enable_paging();
+
+	// Register the kernel commands
+	isr80h_register_commands();
 
 	struct process *process = NULL;
 	int res = process_load("0:/blank.bin", &process);
