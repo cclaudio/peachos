@@ -23,6 +23,7 @@
 #include "task/process.h"
 #include "status.h"
 #include "isr80h/isr80h.h"
+#include "keyboard/keyboard.h"
 
 static struct paging_4gb_chunk *kernel_chunk = 0;
 
@@ -110,7 +111,7 @@ struct gdt_structured gdt_structured[PEACHOS_TOTAL_GDT_SEGMENTS] = {
 void kernel_main(void)
 {
 	terminal_initialize();
-	
+
 	memset(gdt_real, 0x00, sizeof(gdt_real));
 	gdt_structured_to_gdt(gdt_real, gdt_structured, PEACHOS_TOTAL_GDT_SEGMENTS);
 
@@ -149,8 +150,11 @@ void kernel_main(void)
 	// Register the kernel commands
 	isr80h_register_commands();
 
+	// Initialize all the system keyboards
+	keyboard_init();
+
 	struct process *process = NULL;
-	int res = process_load("0:/blank.bin", &process);
+	int res = process_load_switch("0:/blank.bin", &process);
 	if (res != PEACHOS_ALL_OK)
 		panic("Failed to load blank.bin\n");
 

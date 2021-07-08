@@ -12,6 +12,10 @@
 struct interrupt_frame;
 typedef void *(*ISR80H_COMMAND)(struct interrupt_frame *frame);
 
+// It's dangerous to not explicit declare arguments. We could end up using this callback to
+// point to functions that have no argument as well as functions that have an argument.
+typedef void  (*INTERRUPT_CALLBACK_FUNCTION)();  
+
 struct idt_desc {
 	uint16_t offset_1;	// Offset bits 0 - 15
 	uint16_t selector;	// Selector thats in our GDT
@@ -45,5 +49,6 @@ void idt_init(void);
 void enable_interrupts(void);
 void disable_interrupts(void);
 void isr80h_register_command(int command_id, ISR80H_COMMAND command);
+int idt_register_interrupt_callback(int interrupt, INTERRUPT_CALLBACK_FUNCTION interrupt_callback);
 
 #endif // IDT_H

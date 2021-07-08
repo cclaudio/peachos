@@ -38,6 +38,13 @@ struct process *process_get(int process_id)
     return processes[process_id];
 }
 
+int process_switch(struct process *process)
+{
+    // No need to save any state. For example, all processes share the same video memory
+    current_process = process;
+    return 0;
+}
+
 static int process_load_binary(const char *filename, struct process *process)
 {
     struct file_stat stat;
@@ -112,6 +119,18 @@ int process_get_free_slot(void)
     }
 
     return -EISTKN;
+}
+
+// Load a process and make it the active one (current_process)
+int process_load_switch(const char *filename, struct process **process)
+{
+    int res;
+
+    res = process_load(filename, process);
+    if (res == 0)
+        process_switch(*process);
+    
+    return res;
 }
 
 int process_load_for_slot(const char *filename, struct process **process, int process_slot)
