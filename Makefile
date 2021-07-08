@@ -11,14 +11,14 @@ FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o ./
 FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/task/tss.asm.o
 FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/misc.o
 FILES += ./build/isr80h/isr80h.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o
-
+FILES += ./build/loader/formats/elf.o ./build/loader/formats/elfloader.o
 
 INCLUDES = -I./src
 
 FLAGS = -g -ffreestanding -nostdlib -nostartfiles -nodefaultlibs
 FLAGS += -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce
 FLAGS += -Iinc -O0 -fomit-frame-pointer -finline-functions -fno-builtin
-FLAGS += -Wno-unused-functions -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -Wall
+FLAGS += -Wno-unused-function -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -Wall
 
 # BIOS only handles binaries hence -f bin
 all: ./bin/boot.bin ./bin/kernel.bin programs
@@ -29,7 +29,7 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 	sudo mount -t vfat ./bin/os.bin /mnt/d
 	# Copy a file over
 	sudo cp ./hello.txt /mnt/d
-	sudo cp ./programs/blank/blank.bin /mnt/d
+	sudo cp ./programs/blank/blank.elf /mnt/d
 	sudo umount /mnt/d
 
 ./bin/kernel.bin: $(FILES)
@@ -47,6 +47,12 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 
 ./build/idt/idt.asm.o : ./src/idt/idt.asm
 	nasm -f elf -g ./src/idt/idt.asm -o ./build/idt/idt.asm.o
+
+./build/loader/formats/elf.o : ./src/loader/formats/elf.c
+	i686-elf-gcc $(INCLUDES) -I./src/loader -I./src/loader/formats $(FLAGS) -std=gnu99 -c ./src/loader/formats/elf.c -o ./build/loader/formats/elf.o
+
+./build/loader/formats/elfloader.o : ./src/loader/formats/elfloader.c
+	i686-elf-gcc $(INCLUDES) -I./src/loader -I./src/loader/formats $(FLAGS) -std=gnu99 -c ./src/loader/formats/elfloader.c -o ./build/loader/formats/elfloader.o
 
 ./build/gdt/gdt.o : ./src/gdt/gdt.c
 	i686-elf-gcc $(INCLUDES) -I./src/gdt $(FLAGS) -std=gnu99 -c ./src/gdt/gdt.c -o ./build/gdt/gdt.o

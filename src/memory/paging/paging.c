@@ -43,16 +43,16 @@ struct paging_4gb_chunk *paging_new_4gb(uint8_t flags)
 
     /* Page directory */
     for (int pgd = 0; pgd < PAGING_TOTAL_ENTRIES_PER_TABLE; pgd++) {
-        uint32_t * page_table = kzalloc(sizeof(uint32_t) * PAGING_TOTAL_ENTRIES_PER_TABLE);
+        uint32_t *page_table = kzalloc(sizeof(uint32_t) * PAGING_TOTAL_ENTRIES_PER_TABLE);
         /* Page table */
         for (int pte = 0; pte < PAGING_TOTAL_ENTRIES_PER_TABLE; pte++) {
             page_table[pte] = (offset + (pte * PAGING_PAGE_SIZE)) | flags;
         }
-        offset += PAGING_TOTAL_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE;
+        offset += (PAGING_TOTAL_ENTRIES_PER_TABLE * PAGING_PAGE_SIZE);
         directory[pgd] = (uint32_t) page_table | flags | PAGING_IS_WRITEABLE;
     }
 
-    struct paging_4gb_chunk * chunk_4gb = kzalloc(sizeof(struct paging_4gb_chunk));
+    struct paging_4gb_chunk *chunk_4gb = kzalloc(sizeof(struct paging_4gb_chunk));
     chunk_4gb->directory_entry = directory;
 
     return chunk_4gb;
@@ -103,6 +103,13 @@ void *paging_align_address(void *ptr)
         return (void *)((uint32_t) ptr + PAGING_PAGE_SIZE - ((uint32_t) ptr % PAGING_PAGE_SIZE));
 
     return ptr;
+}
+
+void *paging_align_to_lower_page(void *addr)
+{
+    int32_t _addr = (uint32_t) addr;
+    _addr -= (_addr % PAGING_PAGE_SIZE);
+    return (void *)_addr;
 }
 
 int paging_map(struct paging_4gb_chunk *directory, void *virt, void *phys, int flags)
