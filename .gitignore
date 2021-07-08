@@ -1,3 +1,5 @@
+*.o
+*.elf
 *.bin
 src/build-binutils
 src/build-gcc
