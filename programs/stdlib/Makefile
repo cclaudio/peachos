@@ -1,4 +1,6 @@
 FILES = ./build/start.asm.o ./build/peachos.asm.o ./build/stdlib.o ./build/stdio.o
+FILES += ./build/peachos.o
+
 INCLUDES = -I./src
 
 FLAGS = -g -nostdlib -nostartfiles -nodefaultlibs
@@ -14,6 +16,9 @@ all: $(FILES)
 
 ./build/peachos.asm.o : ./src/peachos.asm
 	nasm -f elf ./src/peachos.asm -o ./build/peachos.asm.o
+
+./build/peachos.o : ./src/peachos.c
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/peachos.c -o ./build/peachos.o
 
 ./build/stdlib.o : ./src/stdlib.c
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/stdlib.c -o ./build/stdlib.o
