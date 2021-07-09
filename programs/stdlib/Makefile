@@ -1,6 +1,10 @@
 FILES = ./build/start.asm.o ./build/peachos.asm.o ./build/stdlib.o ./build/stdio.o
 INCLUDES = -I./src
-FLAGS = -g
+
+FLAGS = -g -nostdlib -nostartfiles -nodefaultlibs
+FLAGS += -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce
+FLAGS += -Iinc -O0 -fomit-frame-pointer -finline-functions -fno-builtin
+FLAGS += -Wno-unused-function -Werror -Wno-unused-label -Wno-cpp -Wno-unused-parameter -Wall
 
 all: $(FILES)
 	i686-elf-ld -m elf_i386 -relocatable $(FILES) -o ./stdlib.elf
