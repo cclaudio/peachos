@@ -4,6 +4,10 @@ int main(int argc, char **argv)
 {
     print("Hello how are you?\n");
 
-    while(1) {}  // loop, we did not create exit yet
+    while(1) {
+        if (getkey() != 0)
+            print("key was pressed\n");
+    }
+
     return 0;
 }
