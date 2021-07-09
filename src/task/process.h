@@ -17,6 +17,11 @@
 #define PROCESS_FILE_TYPE_BINARY 1
 typedef unsigned char PROCESS_FILE_TYPE;
 
+struct process_allocation {
+    void *ptr;
+    size_t size;
+};
+
 struct process {
     // The process id
     uint16_t id;
@@ -27,7 +32,7 @@ struct process {
     struct task *task;
 
     // Keep track of the process malloc allocations
-    void *allocations[PEACHOS_MAX_PROGRAM_ALLOCATIONS];
+    struct process_allocation allocations[PEACHOS_MAX_PROGRAM_ALLOCATIONS];
 
     PROCESS_FILE_TYPE filetype;
 

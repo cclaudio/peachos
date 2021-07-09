@@ -49,7 +49,7 @@ int process_switch(struct process *process)
 static int process_find_free_allocations_index(struct process *process)
 {
     for (int i = 0; i < PEACHOS_MAX_PROGRAM_ALLOCATIONS; i++) {
-        if (process->allocations[i] == 0)
+        if (process->allocations[i].ptr == 0)
             return i;
     }
 
@@ -77,7 +77,8 @@ void *process_malloc(struct process *process, size_t size)
     if (res < 0)
         goto out_err;
 
-    process->allocations[index] = ptr;
+    process->allocations[index].ptr = ptr;
+    process->allocations[index].size = size;
     return ptr;
 
 out_err:
@@ -86,29 +87,41 @@ out_err:
     return NULL;
 }
 
-static bool process_is_process_pointer(struct process *process, void *ptr)
-{
-    for (int i = 0; i < PEACHOS_MAX_PROGRAM_ALLOCATIONS; i++) {
-        if (process->allocations[i] == ptr)
-            return true;
-    }
-
-    return false;
-}
-
 static void process_allocation_unjoin(struct process *process, void *ptr)
 {
     for (int i = 0; i < PEACHOS_MAX_PROGRAM_ALLOCATIONS; i++) {
-        if (process->allocations[i] == ptr)
-            process->allocations[i] = 0x00;
+        if (process->allocations[i].ptr == ptr) {
+            process->allocations[i].ptr = 0x00;
+            process->allocations[i].size = 0;
+        }
     }
 }
-void process_free(struct process *process, void *ptr)
+
+static struct process_allocation *process_get_allocation_by_addr(struct process *process, void *addr)
 {
-    // ptr is not our pointer
-    if (!process_is_process_pointer(process, ptr))
-        return;
+    for (int i = 0; i < PEACHOS_MAX_PROGRAM_ALLOCATIONS; i++) {
+        if (process->allocations[i].ptr == addr)
+            return &process->allocations[i];
+    }
+    return NULL;
+}
+
+void process_free(struct process *process, void *ptr)
+{    
+    // Unlink the pages from the process for the given address
+    struct process_allocation* allocation = process_get_allocation_by_addr(process, ptr);
+    if (!allocation)
+        return; // Oops it's not our pointer
     
+    // Remap the task pages dropping all flags
+    int res = paging_map_to(process->task->page_directory,
+                            allocation->ptr,
+                            allocation->ptr,
+                            paging_align_address(allocation->ptr + allocation->size),
+                            0x00);
+    if (res < 0)
+        return;
+
     // Unjoin the allocation
     process_allocation_unjoin(process, ptr);
 
