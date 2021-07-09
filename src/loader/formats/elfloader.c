@@ -186,7 +186,7 @@ int elf_load(const char *filename, struct elf_file **file_out)
 
     fd = fopen(filename, "r");
     if (fd <= 0)
-        return fd;        
+        return -EIO;
 
     res = fstat(fd, &stat);
     if (res < 0)

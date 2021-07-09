@@ -12,6 +12,7 @@ FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/
 FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/misc.o
 FILES += ./build/isr80h/isr80h.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o
 FILES += ./build/loader/formats/elf.o ./build/loader/formats/elfloader.o ./build/isr80h/heap.o
+FILES += ./build/isr80h/process.o
 
 INCLUDES = -I./src
 
@@ -70,14 +71,17 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 ./build/isr80h/misc.o : ./src/isr80h/misc.c
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/misc.c -o ./build/isr80h/misc.o
 
+./build/isr80h/io.o : ./src/isr80h/io.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/io.c -o ./build/isr80h/io.o
+
+./build/isr80h/process.o : ./src/isr80h/process.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/process.c -o ./build/isr80h/process.o
+
 ./build/keyboard/keyboard.o : ./src/keyboard/keyboard.c
 	i686-elf-gcc $(INCLUDES) -I./src/keyboard $(FLAGS) -std=gnu99 -c ./src/keyboard/keyboard.c -o ./build/keyboard/keyboard.o
 
 ./build/keyboard/classic.o : ./src/keyboard/classic.c
 	i686-elf-gcc $(INCLUDES) -I./src/keyboard $(FLAGS) -std=gnu99 -c ./src/keyboard/classic.c -o ./build/keyboard/classic.o
-
-./build/isr80h/io.o : ./src/isr80h/io.c
-	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/io.c -o ./build/isr80h/io.o
 
 ./build/idt/idt.o : ./src/idt/idt.c
 	i686-elf-gcc $(INCLUDES) -I./src/idt $(FLAGS) -std=gnu99 -c ./src/idt/idt.c -o ./build/idt/idt.o
