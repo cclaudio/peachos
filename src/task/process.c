@@ -46,6 +46,34 @@ int process_switch(struct process *process)
     return 0;
 }
 
+static int process_find_free_allocations_index(struct process *process)
+{
+    for (int i = 0; i < PEACHOS_MAX_PROGRAM_ALLOCATIONS; i++) {
+        if (process->allocations[i] == 0)
+            return i;
+    }
+
+    return -ENOMEM;
+}
+
+void *process_malloc(struct process *process, size_t size)
+{
+    void *ptr;
+    int index;
+    
+    ptr = kzalloc(size);
+    if (!ptr)
+        return NULL;
+    
+    index = process_find_free_allocations_index(process);
+    if (index < 0)
+        return NULL;
+    
+    process->allocations[index] = ptr;
+
+    return ptr;
+}
+
 static int process_load_binary(const char *filename, struct process *process)
 {
     struct file_stat stat;

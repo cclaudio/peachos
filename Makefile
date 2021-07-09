@@ -11,7 +11,7 @@ FILES += ./build/string/string.o ./build/fs/pparser.o ./build/disk/streamer.o ./
 FILES += ./build/fs/fat/fat16.o ./build/gdt/gdt.o ./build/gdt/gdt.asm.o ./build/task/tss.asm.o
 FILES += ./build/task/task.o ./build/task/process.o ./build/task/task.asm.o ./build/isr80h/misc.o
 FILES += ./build/isr80h/isr80h.o ./build/isr80h/io.o ./build/keyboard/keyboard.o ./build/keyboard/classic.o
-FILES += ./build/loader/formats/elf.o ./build/loader/formats/elfloader.o
+FILES += ./build/loader/formats/elf.o ./build/loader/formats/elfloader.o ./build/isr80h/heap.o
 
 INCLUDES = -I./src
 
@@ -62,6 +62,9 @@ all: ./bin/boot.bin ./bin/kernel.bin programs
 
 ./build/isr80h/isr80h.o : ./src/isr80h/isr80h.c
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/isr80h.c -o ./build/isr80h/isr80h.o
+
+./build/isr80h/heap.o : ./src/isr80h/heap.c
+	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/heap.c -o ./build/isr80h/heap.o
 
 ./build/isr80h/misc.o : ./src/isr80h/misc.c
 	i686-elf-gcc $(INCLUDES) -I./src/isr80h $(FLAGS) -std=gnu99 -c ./src/isr80h/misc.c -o ./build/isr80h/misc.o
