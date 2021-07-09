@@ -1,4 +1,4 @@
-FILES = ./build/start.asm.o
+FILES = ./build/start.asm.o ./build/peachos.asm.o
 INCLUDES =
 
 all: $(FILES)
@@ -6,6 +6,9 @@ all: $(FILES)
 
 ./build/start.asm.o : ./src/start.asm
 	nasm -f elf ./src/start.asm -o ./build/start.asm.o
+
+./build/peachos.asm.o : ./src/peachos.asm
+	nasm -f elf ./src/peachos.asm -o ./build/peachos.asm.o
 
 clean:
 	rm -f $(FILES)
