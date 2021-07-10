@@ -10,6 +10,7 @@ global peachos_putchar:function
 global peachos_process_load_start:function
 global peachos_process_get_arguments:function
 global peachos_system:function
+global peachos_exit:function
 
 ; void print(const char *message)
 print:
@@ -94,5 +95,14 @@ peachos_process_get_arguments:
     push dword[ebp+8]   ; Variable "arguments"
     int 0x80
     add esp, 4
+    pop ebp
+    ret
+
+; void peachos_exit()
+peachos_exit:
+    push ebp
+    mov ebp, esp
+    mov eax, 9          ; Command exit
+    int 0x80
     pop ebp
     ret

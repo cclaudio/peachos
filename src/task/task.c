@@ -114,6 +114,17 @@ err_free_mem:
     return NULL;
 }
 
+void task_next()
+{
+    struct task *next_task = task_get_next();
+    if (!next_task)
+        panic("No more tasks\n");
+    
+    task_switch(next_task);
+    task_return(&next_task->registers);
+    // We won't return
+}
+
 int task_switch(struct task *task)
 {
     current_task = task;
