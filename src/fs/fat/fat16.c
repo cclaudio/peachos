@@ -199,6 +199,7 @@ int fat16_get_root_directory(struct disk *disk, struct fat_private *fat_private,
     int total_items;
     struct fat_directory_item *dir;
     struct disk_stream *stream;
+    int err_code = 0;
 
     primary_header = &fat_private->header.primary_header;
     root_dir_sector_pos = (primary_header->fat_copies * primary_header->sectors_per_fat) +
@@ -216,11 +217,15 @@ int fat16_get_root_directory(struct disk *disk, struct fat_private *fat_private,
         return -ENOMEM;
 
     stream = fat_private->directory_stream;
-    if (dstreamer_seek(stream, fat16_sector_to_absolute(disk, root_dir_sector_pos)) != PEACHOS_ALL_OK)
-        return -EIO;
+    if (dstreamer_seek(stream, fat16_sector_to_absolute(disk, root_dir_sector_pos)) != PEACHOS_ALL_OK) {
+        err_code = -EIO;
+        goto out_free;
+    }
 
-    if (dstreamer_read(stream, dir, root_dir_size) != PEACHOS_ALL_OK)
-        return -EIO;
+    if (dstreamer_read(stream, dir, root_dir_size) != PEACHOS_ALL_OK) {
+        err_code = -EIO;
+        goto out_free;
+    }
 
     directory->item = dir;
     directory->total = total_items;
@@ -228,6 +233,10 @@ int fat16_get_root_directory(struct disk *disk, struct fat_private *fat_private,
     directory->ending_sector_pos = root_dir_sector_pos + (root_dir_size / disk->sector_size);
 
     return 0;
+
+out_free:
+    kfree(dir);
+    return err_code;
 }
 
 int fat16_resolve(struct disk *disk)
@@ -576,6 +585,7 @@ struct fat_item *fat16_get_directory_entry(struct disk *disk, struct path_part *
 void *fat16_open(struct disk *disk, struct path_part *path, FILE_MODE mode)
 {
     struct fat_file_descriptor *descriptor = NULL;
+    int err_code = 0;
 
     if (mode != FILE_MODE_READ)
         return ERROR(-ERDONLY);
@@ -585,12 +595,17 @@ void *fat16_open(struct disk *disk, struct path_part *path, FILE_MODE mode)
         return ERROR(-ENOMEM);
 
     descriptor->item = fat16_get_directory_entry(disk, path);
-    if (!descriptor->item)
-        return ERROR(-EIO);
+    if (!descriptor->item) {
+        err_code = -EIO;
+        goto out_free;
+    }
 
     descriptor->pos = 0;
-
     return descriptor;
+
+out_free:
+    kfree(descriptor);
+    return ERROR(err_code);
 }
 
 static void fat16_free_file_descriptor(struct fat_file_descriptor *desc)

@@ -288,7 +288,7 @@ static int process_load_binary(const char *filename, struct process *process)
 
     if (fread(program_data_ptr, stat.filesize, 1, fd) != 1) {
         res = -EIO;
-        goto err_close;
+        goto err_free;
     }
 
     process->filetype = PROCESS_FILE_TYPE_BINARY;
@@ -296,7 +296,9 @@ static int process_load_binary(const char *filename, struct process *process)
     process->size = stat.filesize;
 
     return 0;
-
+    
+err_free:
+    kfree(program_data_ptr);
 err_close:
     fclose(fd);
     return res;
