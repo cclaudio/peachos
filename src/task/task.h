@@ -64,5 +64,6 @@ void task_current_save_state(struct interrupt_frame *frame);
 int copy_string_from_task(struct task *task, void *virtual, void *phys, int max);
 void *task_get_stack_item(struct task *task, int index);
 int task_page_task(struct task *task);
+void *task_virtual_address_to_physical(struct task *task, void *virtual_address);
 
 #endif // TASK_H

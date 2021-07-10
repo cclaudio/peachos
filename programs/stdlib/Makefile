@@ -1,5 +1,5 @@
 FILES = ./build/start.asm.o ./build/peachos.asm.o ./build/stdlib.o ./build/stdio.o
-FILES += ./build/peachos.o ./build/memory.o ./build/string.o
+FILES += ./build/peachos.o ./build/memory.o ./build/string.o ./build/start.o
 
 INCLUDES = -I./src
 
@@ -31,6 +31,9 @@ all: $(FILES)
 
 ./build/memory.o : ./src/memory.c
 	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/memory.c -o ./build/memory.o
+
+./build/start.o : ./src/start.c
+	i686-elf-gcc $(INCLUDES) $(FLAGS) -std=gnu99 -c ./src/start.c -o ./build/start.o
 
 clean:
 	rm -f $(FILES)
